@@ -1,8 +1,9 @@
 export const formatPrimarySkills = (result: any) => {
   const mergedData: any[] = [];
   const empMap = new Map();
+  const key = Object.keys(result)[0];
 
-  result.Sheet1.forEach((item: Record<string, any>) => {
+  result[key].forEach((item: Record<string, any>) => {
     if (item.EmpID) {
       if (!empMap.has(item.EmpID)) {
         // Initialize 'Primary Skills ' as an array if it's not already
