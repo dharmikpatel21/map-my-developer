@@ -1,6 +1,7 @@
 "use client";
+import { formatPrimarySkills } from "@/lib/functions";
 import React from "react";
-import { useForm } from "react-hook-form";
+import { FieldValues, useForm } from "react-hook-form";
 
 type Props = {};
 
@@ -11,7 +12,7 @@ const ExcelUpload = (props: Props) => {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: FieldValues) => {
     console.log("Form Data:", data);
 
     const formData = new FormData();
@@ -22,8 +23,9 @@ const ExcelUpload = (props: Props) => {
         method: "POST",
         body: formData,
       });
-
       const result = await response.json();
+      const formatedData = formatPrimarySkills(result);
+      console.log("formatedData", formatedData);
       console.log("Converted JSON data:", result);
     } catch (error) {
       console.error("Error uploading the file:", error);
