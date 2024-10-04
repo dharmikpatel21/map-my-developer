@@ -9,19 +9,14 @@ const ExcelUpload = (props: Props) => {
   const [uploadType, setUploadType] = useState<
     "onBenchEmployee" | "jobRequirement"
   >("onBenchEmployee");
-  const [onBenchEmployee, setOnBenchEmployee] = useState([]);
-  const [jobRequirement, setJobRequirement] = useState([]);
+  // const [onBenchEmployee, setOnBenchEmployee] = useState([]);
+  // const [jobRequirement, setJobRequirement] = useState([]);
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
-  console.log("====================================");
-  console.log("onBenchEmployee", onBenchEmployee);
-  console.log("====================================");
-  console.log("====================================");
-  console.log("jobRequirement", jobRequirement);
-  console.log("====================================");
+
   const onSubmit = async (data: FieldValues) => {
     console.log("====================================");
     console.log("Form Data:", data);
@@ -41,10 +36,15 @@ const ExcelUpload = (props: Props) => {
       console.log("====================================");
       if (uploadType === "onBenchEmployee") {
         const formatOnBenchEmployee = formatPrimarySkills(result);
-        setOnBenchEmployee(formatOnBenchEmployee as any);
+        sessionStorage.setItem(
+          "onBenchEmployee",
+          JSON.stringify(formatOnBenchEmployee)
+        );
       }
-      setJobRequirement(result["Open JR"]);
-      // setJobRequirement(Object.values(result)[1]);
+      sessionStorage.setItem(
+        "jobRequirement",
+        JSON.stringify(result["Open JR"] ? result["Open JR"] : [])
+      );
     } catch (error: any) {
       console.error("Error uploading the file:", error.message);
     }

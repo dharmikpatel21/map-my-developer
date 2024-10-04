@@ -1,4 +1,5 @@
 import ExcelUpload from "@/components/ExcelUpload";
+import SelectJob from "@/components/SelectJob";
 import dynamic from "next/dynamic";
 const MapWithEmployeeMarkers = dynamic(
   () => import("@/components/MapWithEmployeeMarkers"),
@@ -9,6 +10,7 @@ export default function Home() {
     <div>
       <ExcelUpload />
       {/* <MapWithEmployeeMarkers />; */}
+      <SelectJob />
     </div>
   );
 }
