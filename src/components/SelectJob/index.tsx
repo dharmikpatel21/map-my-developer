@@ -1,4 +1,6 @@
 "use client";
+import { getEmployeesFromSkills } from "@/lib/functions";
+import { getSkillsfromJobTitle } from "@/lib/getSkillsfromJobTitle";
 import React, { useEffect, useState } from "react";
 import { FieldValues, useForm } from "react-hook-form";
 
@@ -11,11 +13,10 @@ const SelectJob = (props: Props) => {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = async (data: FieldValues) => {
-    console.log(data);
-  };
-
   const [parsedJobRequirement, setParsedJobRequirement] = useState<
+    Record<string, any>[] | null
+  >(null);
+  const [parsedOnBenchEmployee, setParsedOnBenchEmployee] = useState<
     Record<string, any>[] | null
   >(null);
 
@@ -24,7 +25,27 @@ const SelectJob = (props: Props) => {
     if (storedJobRequirement) {
       setParsedJobRequirement(JSON.parse(storedJobRequirement));
     }
+    const storedOnBenchEmployee = sessionStorage.getItem("onBenchEmployee");
+    if (storedOnBenchEmployee) {
+      setParsedOnBenchEmployee(JSON.parse(storedOnBenchEmployee));
+    }
   }, []);
+
+  const onSubmit = async (data: FieldValues) => {
+    const selectedJob = data.selectJob;
+    const skills = await getSkillsfromJobTitle(selectedJob);
+    const matchingEmployees =
+      skills &&
+      parsedOnBenchEmployee &&
+      (await getEmployeesFromSkills({
+        skills,
+        parsedOnBenchEmployee,
+      }));
+    const empIDs = matchingEmployees.map(
+      (employee: Record<string, any>) => employee.Location
+    );
+    console.log("Matching EmpIDs:", empIDs);
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>

@@ -27,3 +27,32 @@ export const formatPrimarySkills = (result: any) => {
 
   return mergedData;
 };
+
+export const getEmployeesFromSkills = ({
+  skills,
+  parsedOnBenchEmployee,
+}: {
+  skills: string[];
+  parsedOnBenchEmployee: Record<string, any>[];
+}) => {
+  const employeesArray = Object.values(parsedOnBenchEmployee || {});
+  // const matchingEmployees = employeesArray.filter((employee) =>
+  //   skills.some(
+  //     (skill: string) => employee["Primary Skills "]?.includes(skill)
+  //     // employee["Skills"]?.includes(skill)
+  //   )
+  // );
+  const matchingEmployees = employeesArray.filter((employee) =>
+    skills.some((skill: string) => {
+      const lowerCaseSkill = skill.toLowerCase();
+      const employeeSkills = [
+        ...(employee["Primary Skills "] || []),
+        employee["Skills"],
+      ].map((s) => s.toLowerCase());
+      return employeeSkills.some((empSkill) =>
+        empSkill.includes(lowerCaseSkill)
+      );
+    })
+  );
+  return matchingEmployees;
+};
