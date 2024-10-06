@@ -1,12 +1,18 @@
 "use client";
 import { getEmployeesFromSkills } from "@/lib/functions";
+import { getCoordinates } from "@/lib/getCordinates";
 import { getSkillsfromJobTitle } from "@/lib/getSkillsfromJobTitle";
 import React, { useEffect, useState } from "react";
 import { FieldValues, useForm } from "react-hook-form";
 
-type Props = {};
+type Props = {
+  setLocationCoordinates: React.Dispatch<
+    React.SetStateAction<Record<string, any>[]>
+  >;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+};
 
-const SelectJob = (props: Props) => {
+const SelectJob = ({ setLocationCoordinates, setLoading }: Props) => {
   const {
     register,
     handleSubmit,
@@ -32,38 +38,77 @@ const SelectJob = (props: Props) => {
   }, []);
 
   const onSubmit = async (data: FieldValues) => {
-    const selectedJob = data.selectJob;
-    const skills = await getSkillsfromJobTitle(selectedJob);
-    const matchingEmployees =
-      skills &&
-      parsedOnBenchEmployee &&
-      (await getEmployeesFromSkills({
+    try {
+      setLoading(true);
+      const selectedJob = data.selectJob;
+
+      const skills = await getSkillsfromJobTitle(selectedJob);
+
+      if (!skills || !parsedOnBenchEmployee) {
+        console.warn("No skills or employee data available.");
+        return;
+      }
+
+      const matchingEmployees = await getEmployeesFromSkills({
         skills,
         parsedOnBenchEmployee,
-      }));
-    const empIDs = matchingEmployees.map(
-      (employee: Record<string, any>) => employee.Location
-    );
-    console.log("Matching EmpIDs:", empIDs);
+      });
+
+      if (!matchingEmployees.length) {
+        console.warn("No matching employees found.");
+        return;
+      }
+
+      const empLocation = await Promise.all(
+        matchingEmployees.map(async (employee: Record<string, any>) => {
+          const location = employee.Location?.toLowerCase();
+          if (!location) {
+            console.warn(`Employee ${employee.name} has no location.`);
+            return null;
+          }
+          try {
+            const coordinates = await getCoordinates(location);
+            console.log(`Coordinates for ${location}:`, coordinates);
+            return coordinates;
+          } catch (error: any) {
+            console.error(
+              `Error fetching coordinates for ${employee.Location}:`,
+              error.message
+            );
+            return null;
+          }
+        })
+      );
+
+      const validLocations = empLocation.filter((loc) => loc !== null);
+      setLocationCoordinates(validLocations);
+      console.log("All valid employee coordinates:", validLocations);
+    } catch (error: any) {
+      console.error("Error during form submission:", error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <div>
-        <label htmlFor="selectJob">Job Posting Title</label>
-        <select id="selectJob" {...register("selectJob", { required: true })}>
-          <option value="">Select your Job Posting Title</option>
-          {parsedJobRequirement?.map((item: Record<string, any>) => (
-            <option key={item["JR"]} value={item["Job Posting Title"]}>
-              {item["Job Posting Title"]}
-            </option>
-          ))}
-        </select>
-        {errors.selectJob && <p>This field is required</p>}
-      </div>
+    <>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div>
+          <label htmlFor="selectJob">Job Posting Title</label>
+          <select id="selectJob" {...register("selectJob", { required: true })}>
+            <option value="">Select your Job Posting Title</option>
+            {parsedJobRequirement?.map((item: Record<string, any>) => (
+              <option key={item["JR"]} value={item["Job Posting Title"]}>
+                {item["Job Posting Title"]}
+              </option>
+            ))}
+          </select>
+          {errors.selectJob && <p>This field is required</p>}
+        </div>
 
-      <button type="submit">Submit</button>
-    </form>
+        <button type="submit">Submit</button>
+      </form>
+    </>
   );
 };
 

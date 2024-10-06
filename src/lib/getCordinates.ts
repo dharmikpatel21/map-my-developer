@@ -1,12 +1,19 @@
-export const getCoordinates = async (city: string) => {
+export const getCoordinates = async (location: string) => {
   try {
-    const coordinates = await fetch(
-      `https://nominatim.openstreetmap.org/search?q=${city}&format=json`
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/search?q=${location}&format=json`
     );
 
-    const coordinatesJson = coordinates.json();
-    return coordinatesJson;
+    const coordinatesJson = await response.json();
+
+    if (coordinatesJson && coordinatesJson.length > 0) {
+      return coordinatesJson[0];
+    } else {
+      console.warn(`No coordinates found for location: ${location}`);
+      return null;
+    }
   } catch (error: any) {
-    console.log("ERROR Fetching coordinates", error.message);
+    console.error("ERROR Fetching coordinates", error.message);
+    return null;
   }
 };
