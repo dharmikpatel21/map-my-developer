@@ -1,91 +1,15 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
-type Props = {};
+import Spinner from "../Spinner";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 
-interface Employee {
-  name: string;
-  dob: string;
-  city: string;
-  state: string;
-  country: string;
-  role: string;
-  experience: string;
-  skills: string[];
-  salaryExpectation: string;
-  workStatus: string;
-  coordinates: [number, number];
-}
-
-const employees: Employee[] = [
-  {
-    name: "Arjun Patel",
-    dob: "1990-03-15",
-    city: "Ahmedabad",
-    state: "Gujarat",
-    country: "India",
-    role: "Full-Stack Developer",
-    experience: "8 years",
-    skills: ["JavaScript", "React", "Node.js", "MongoDB"],
-    salaryExpectation: "₹1,500,000/year",
-    workStatus: "Actively looking",
-    coordinates: [23.0225, 72.5714],
-  },
-  {
-    name: "Sophia Martinez",
-    dob: "1988-06-10",
-    city: "Barcelona",
-    state: "Catalonia",
-    country: "Spain",
-    role: "Backend Developer",
-    experience: "10 years",
-    skills: ["Python", "Django", "PostgreSQL", "Docker"],
-    salaryExpectation: "€60,000/year",
-    workStatus: "Currently employed",
-    coordinates: [41.3851, 2.1734],
-  },
-  {
-    name: "Emily Chen",
-    dob: "1992-11-05",
-    city: "Beijing",
-    state: "Beijing",
-    country: "China",
-    role: "Frontend Developer",
-    experience: "6 years",
-    skills: ["HTML", "CSS", "Vue.js", "Sass"],
-    salaryExpectation: "¥300,000/year",
-    workStatus: "Freelancing",
-    coordinates: [39.9042, 116.4074],
-  },
-  {
-    name: "James Brown",
-    dob: "1985-02-20",
-    city: "San Francisco",
-    state: "California",
-    country: "USA",
-    role: "DevOps Engineer",
-    experience: "12 years",
-    skills: ["AWS", "Kubernetes", "Terraform", "CI/CD"],
-    salaryExpectation: "$120,000/year",
-    workStatus: "Currently employed",
-    coordinates: [37.7749, -122.4194],
-  },
-  {
-    name: "Olga Ivanova",
-    dob: "1993-09-12",
-    city: "Moscow",
-    state: "Moscow",
-    country: "Russia",
-    role: "Mobile App Developer",
-    experience: "7 years",
-    skills: ["Kotlin", "Swift", "Flutter", "React Native"],
-    salaryExpectation: "₽1,500,000/year",
-    workStatus: "Actively looking",
-    coordinates: [55.7558, 37.6173],
-  },
-];
+type Props = {
+  empDataWithCoordinates: Record<string, any>[];
+  loading: boolean;
+};
 
 const DefaultIcon = L.icon({
   iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
@@ -95,31 +19,162 @@ const DefaultIcon = L.icon({
 });
 L.Marker.prototype.options.icon = DefaultIcon;
 
-const MapWithEmployeeMarkers = (props: Props) => {
+const MapWithEmployeeMarkers = ({ empDataWithCoordinates, loading }: Props) => {
+  const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
+
+  console.log("====================================");
+  console.log("locationCoordinates", empDataWithCoordinates);
+  console.log("====================================");
+
+  const uniqueCoordinates = new Set<string>();
+
   return (
-    <MapContainer
-      center={[20.5937, 78.9629]}
-      zoom={2}
-      style={{ height: "100vh", width: "100vw" }}
-    >
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      />
-      {employees.map((employee, idx) => (
-        <Marker key={idx} position={employee.coordinates} icon={DefaultIcon}>
-          <Popup>
-            <div>
-              <strong>{employee.name}</strong>
-              <p>Role: {employee.role}</p>
-              <p>Experience: {employee.experience}</p>
-              <p>Salary Expectation: {employee.salaryExpectation}</p>
-              <p>Status: {employee.workStatus}</p>
-            </div>
-          </Popup>
-        </Marker>
-      ))}
-    </MapContainer>
+    <>
+      <Sheet
+        open={!!selectedEmployee}
+        onOpenChange={() => setSelectedEmployee(null)}
+      >
+        <div>
+          {loading ? (
+            <Spinner />
+          ) : (
+            empDataWithCoordinates.length > 0 && (
+              <MapContainer
+                center={[20.5937, 78.9629]}
+                zoom={2}
+                style={{ height: "100%", width: "100%" }}
+              >
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                />
+                {empDataWithCoordinates.map((employee, index) => {
+                  const lat = parseFloat(employee.coordinates.lat);
+                  const lng = parseFloat(employee.coordinates.lon);
+                  const position = `${lat},${lng}`;
+
+                  if (uniqueCoordinates.has(position)) {
+                    return null;
+                  }
+                  uniqueCoordinates.add(position);
+
+                  const employeeCount = empDataWithCoordinates.filter(
+                    (emp) =>
+                      parseFloat(emp.coordinates.lat) === lat &&
+                      parseFloat(emp.coordinates.lon) === lng
+                  ).length;
+
+                  return (
+                    <Marker
+                      key={position}
+                      position={{ lat, lng }}
+                      icon={DefaultIcon}
+                      eventHandlers={{
+                        click: () => {
+                          setSelectedEmployee(employee);
+                        },
+                      }}
+                    >
+                      {selectedEmployee &&
+                        selectedEmployee.EmpID === employee.EmpID && (
+                          <SheetContent className="overflow-y-scroll flex flex-col gap-4">
+                            <SheetHeader>
+                              <SheetTitle>
+                                total employees:{employeeCount}
+                              </SheetTitle>
+                            </SheetHeader>
+                            <div className="flex flex-col divide-y-2 gap-4">
+                              {empDataWithCoordinates
+                                .filter(
+                                  (emp) =>
+                                    parseFloat(emp.coordinates.lat) === lat &&
+                                    parseFloat(emp.coordinates.lon) === lng
+                                )
+                                .map((emp) => (
+                                  <div
+                                    key={emp.EmpID}
+                                    className="rounded-lg p-2 border border-black"
+                                  >
+                                    <div className="flex gap-2">
+                                      <span className="font-semibold">
+                                        AccountSPOC:
+                                      </span>
+                                      <span>{emp.AccountSPOC}</span>
+                                    </div>
+                                    <div className="flex gap-2">
+                                      <span className="font-semibold">
+                                        Designation:
+                                      </span>
+                                      <span>{emp.Designation}</span>
+                                    </div>
+                                    <div className="flex gap-2">
+                                      <span className="font-semibold">
+                                        EmpID:
+                                      </span>
+                                      <span>{emp.EmpID}</span>
+                                    </div>
+                                    <div className="flex gap-2">
+                                      <span className="font-semibold">
+                                        EmpName:
+                                      </span>
+                                      <span>{emp.EmpName}</span>
+                                    </div>
+                                    <div className="flex gap-2">
+                                      <span className="font-semibold">
+                                        Experience:
+                                      </span>
+                                      <span>{emp.Experience}</span>
+                                    </div>
+                                    <div className="flex gap-2">
+                                      <span className="font-semibold">
+                                        PhoneNo:
+                                      </span>
+                                      <span>{emp.PhoneNo}</span>
+                                    </div>
+                                    <div className="flex gap-2">
+                                      <span className="font-semibold">
+                                        Skills:
+                                      </span>
+                                      <span>{emp.Skills}</span>
+                                    </div>
+                                    <div className="flex gap-2">
+                                      <span className="font-semibold">
+                                        Primary Skills:
+                                      </span>
+                                      <span>{emp["Primary Skills "]}</span>
+                                    </div>
+                                    <div className="flex gap-2">
+                                      <span className="font-semibold">
+                                        Resource Status:
+                                      </span>
+                                      <span>{emp["Resource Status"]}</span>
+                                    </div>
+                                    <div className="flex gap-2">
+                                      <span className="font-semibold">
+                                        Location:
+                                      </span>
+                                      <span>{emp.Location}</span>
+                                    </div>
+
+                                    {/* <p>
+                                      Latitude and Longitude:{" "}
+                                      {emp.coordinates.lat},{" "}
+                                      {emp.coordinates.lon}
+                                    </p> */}
+                                  </div>
+                                ))}
+                            </div>
+                          </SheetContent>
+                        )}
+                    </Marker>
+                  );
+                })}
+              </MapContainer>
+            )
+          )}
+        </div>
+      </Sheet>
+    </>
   );
 };
 
