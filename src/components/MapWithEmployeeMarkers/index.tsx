@@ -3,6 +3,7 @@ import React from "react";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
+import Spinner from "../Spinner";
 
 type Props = {
   empDataWithCoordinates: Record<string, any>[];
@@ -26,16 +27,14 @@ const MapWithEmployeeMarkers = ({ empDataWithCoordinates, loading }: Props) => {
   const uniqueCoordinates = new Set<string>();
 
   return (
-    <div className="relative h-100vh w-100vw">
+    <div>
       {loading ? (
-        <div className="absolute top-0 left-0 w-full h-full bg-gray-500 bg-opacity-30 flex justify-center items-center z-10">
-          <div className="text-red-500 font-bold text-2xl">Loading...</div>
-        </div>
+        <Spinner />
       ) : (
         <MapContainer
           center={[20.5937, 78.9629]}
           zoom={2}
-          style={{ height: "100vh", width: "100vw" }}
+          style={{ height: 500, width: 500 }}
         >
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

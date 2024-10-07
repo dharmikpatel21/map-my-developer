@@ -4,6 +4,7 @@ import { getCoordinates } from "@/lib/getCordinates";
 import { getSkillsfromJobTitle } from "@/lib/getSkillsfromJobTitle";
 import React, { useEffect, useState } from "react";
 import { FieldValues, useForm } from "react-hook-form";
+import { Button } from "../ui/button";
 
 type Props = {
   setEmpDataWithCoordinates: React.Dispatch<
@@ -101,11 +102,17 @@ const SelectJob = ({ setEmpDataWithCoordinates, setLoading }: Props) => {
   };
 
   return (
-    <>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div>
-          <label htmlFor="selectJob">Job Posting Title</label>
-          <select id="selectJob" {...register("selectJob", { required: true })}>
+    <div>
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+        <div className="flex gap-4 items-center">
+          <label htmlFor="selectJob" className="font-bold text-lg">
+            Job Posting Title
+          </label>
+          <select
+            id="selectJob"
+            {...register("selectJob", { required: true })}
+            className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
             <option value="">Select your Job Posting Title</option>
             {parsedJobRequirement?.map((item: Record<string, any>) => (
               <option key={item["JR"]} value={item["Job Posting Title"]}>
@@ -113,12 +120,14 @@ const SelectJob = ({ setEmpDataWithCoordinates, setLoading }: Props) => {
               </option>
             ))}
           </select>
-          {errors.selectJob && <p>This field is required</p>}
+          {errors.selectJob && (
+            <p className="text-red-500 mt-1">This field is required</p>
+          )}
         </div>
 
-        <button type="submit">Submit</button>
+        <Button type="submit">Submit</Button>
       </form>
-    </>
+    </div>
   );
 };
 

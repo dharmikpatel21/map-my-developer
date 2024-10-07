@@ -16,16 +16,21 @@ const MainContainer = (props: Props) => {
   const [loading, setLoading] = useState(false);
 
   return (
-    <div>
+    <div
+      className="flex flex-col items-center"
+      style={{ gap: 20, padding: 20 }}
+    >
       <ExcelUpload />
       <SelectJob
         setEmpDataWithCoordinates={setEmpDataWithCoordinates}
         setLoading={setLoading}
       />
-      <MapWithEmployeeMarkers
-        empDataWithCoordinates={empDataWithCoordinates}
-        loading={loading}
-      />
+      {empDataWithCoordinates && (
+        <MapWithEmployeeMarkers
+          empDataWithCoordinates={empDataWithCoordinates}
+          loading={loading}
+        />
+      )}
     </div>
   );
 };

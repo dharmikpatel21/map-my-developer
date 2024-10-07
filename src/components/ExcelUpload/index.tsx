@@ -2,6 +2,11 @@
 import { formatPrimarySkills } from "@/lib/functions";
 import React, { useState } from "react";
 import { FieldValues, useForm } from "react-hook-form";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
+import { Label } from "../ui/label";
+import { UploadIcon } from "@radix-ui/react-icons";
 
 type Props = {};
 
@@ -51,16 +56,21 @@ const ExcelUpload = (props: Props) => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <div>
-        <input
-          type="file"
-          accept=".xlsx"
-          {...register("excelFile", { required: true })}
-        />
-        {errors.excelFile && <p>Please upload an Excel file.</p>}
-      </div>
-      <div className="flex flex-col">
+    <div>
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+        <div>
+          <Input
+            type="file"
+            accept=".xlsx"
+            {...register("excelFile", { required: true })}
+            className="cursor-pointer"
+          />
+          {errors.excelFile && (
+            <p className="text-rose-400">Please upload an Excel file.</p>
+          )}
+        </div>
+
+        {/* <div className="flex flex-col">
         <label>
           <input
             type="radio"
@@ -79,10 +89,28 @@ const ExcelUpload = (props: Props) => {
           />
           Upload Job Requirement Data
         </label>
-      </div>
-
-      <button type="submit">Upload and Convert</button>
-    </form>
+      </div> */}
+        <RadioGroup
+          value={uploadType}
+          onValueChange={(value) =>
+            setUploadType(value as "onBenchEmployee" | "jobRequirement")
+          }
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="onBenchEmployee" id="onBenchEmployee" />
+            <Label htmlFor="onBenchEmployee">
+              Upload On Bench Employee Data
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="jobRequirement" id="jobRequirement" />
+            <Label htmlFor="jobRequirement">Upload Job Requirement Data</Label>
+          </div>
+        </RadioGroup>
+        {/* <button>Upload and Convert</button> */}
+        <Button type="submit">Upload and Convert</Button>
+      </form>
+    </div>
   );
 };
 
