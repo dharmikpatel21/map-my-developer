@@ -2,7 +2,7 @@
 import ExcelUpload from "@/components/ExcelUpload";
 import SelectJob from "@/components/SelectJob";
 import dynamic from "next/dynamic";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 const MapWithEmployeeMarkers = dynamic(
   () => import("@/components/MapWithEmployeeMarkers"),
   { ssr: false }
@@ -14,23 +14,48 @@ const MainContainer = (props: Props) => {
     Record<string, any>[]
   >([]);
   const [loading, setLoading] = useState(false);
+  const [parsedJobRequirement, setParsedJobRequirement] = useState<
+    Record<string, any>[]
+  >([]);
+  const [parsedOnBenchEmployee, setParsedOnBenchEmployee] = useState<
+    Record<string, any>[]
+  >([]);
 
+  useEffect(() => {
+    const storedJobRequirement = sessionStorage.getItem("jobRequirement");
+    if (storedJobRequirement) {
+      setParsedJobRequirement(JSON.parse(storedJobRequirement));
+    }
+    const storedOnBenchEmployee = sessionStorage.getItem("onBenchEmployee");
+    if (storedOnBenchEmployee) {
+      setParsedOnBenchEmployee(JSON.parse(storedOnBenchEmployee));
+    }
+  }, []);
+  console.log("====================================");
+  console.log("empDataWithCoordinates", empDataWithCoordinates);
+  console.log("====================================");
   return (
     <div
       className="flex flex-col items-center"
       style={{ gap: 20, padding: 20 }}
     >
-      <ExcelUpload />
-      <SelectJob
-        setEmpDataWithCoordinates={setEmpDataWithCoordinates}
-        setLoading={setLoading}
+      <ExcelUpload
+        setParsedJobRequirement={setParsedJobRequirement}
+        setParsedOnBenchEmployee={setParsedOnBenchEmployee}
       />
-      {empDataWithCoordinates && (
-        <MapWithEmployeeMarkers
-          empDataWithCoordinates={empDataWithCoordinates}
-          loading={loading}
+      {parsedJobRequirement.length > 0 && (
+        <SelectJob
+          parsedOnBenchEmployee={parsedOnBenchEmployee}
+          parsedJobRequirement={parsedJobRequirement}
+          setEmpDataWithCoordinates={setEmpDataWithCoordinates}
+          setLoading={setLoading}
         />
       )}
+
+      <MapWithEmployeeMarkers
+        empDataWithCoordinates={empDataWithCoordinates}
+        loading={loading}
+      />
     </div>
   );
 };

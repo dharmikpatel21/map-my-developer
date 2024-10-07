@@ -6,27 +6,31 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Label } from "../ui/label";
-import { UploadIcon } from "@radix-ui/react-icons";
+import { toast, useToast } from "../ui/use-toast";
 
-type Props = {};
+type Props = {
+  setParsedJobRequirement: React.Dispatch<
+    React.SetStateAction<Record<string, any>[]>
+  >;
+  setParsedOnBenchEmployee: React.Dispatch<
+    React.SetStateAction<Record<string, any>[]>
+  >;
+};
 
-const ExcelUpload = (props: Props) => {
+const ExcelUpload = ({
+  setParsedJobRequirement,
+  setParsedOnBenchEmployee,
+}: Props) => {
   const [uploadType, setUploadType] = useState<
     "onBenchEmployee" | "jobRequirement"
   >("onBenchEmployee");
-  // const [onBenchEmployee, setOnBenchEmployee] = useState([]);
-  // const [jobRequirement, setJobRequirement] = useState([]);
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
-
   const onSubmit = async (data: FieldValues) => {
-    console.log("====================================");
-    console.log("Form Data:", data);
-    console.log("====================================");
-
     const formData = new FormData();
     formData.append("file", data.excelFile[0]); // Extract the file
 
@@ -36,20 +40,27 @@ const ExcelUpload = (props: Props) => {
         body: formData,
       });
       const result = await response.json();
-      console.log("====================================");
-      console.log("result", result);
-      console.log("====================================");
       if (uploadType === "onBenchEmployee") {
         const formatOnBenchEmployee = formatPrimarySkills(result);
         sessionStorage.setItem(
           "onBenchEmployee",
           JSON.stringify(formatOnBenchEmployee)
         );
+        setParsedOnBenchEmployee(formatOnBenchEmployee);
       }
-      sessionStorage.setItem(
-        "jobRequirement",
-        JSON.stringify(result["Open JR"] ? result["Open JR"] : [])
-      );
+      if (uploadType === "jobRequirement") {
+        sessionStorage.setItem(
+          "jobRequirement",
+          JSON.stringify(result["Open JR"])
+        );
+        setParsedJobRequirement(result["Open JR"]);
+      }
+      if (result) {
+        toast({
+          title: "Excel upload status",
+          description: "excel uploaded successfully",
+        });
+      }
     } catch (error: any) {
       console.error("Error uploading the file:", error.message);
     }

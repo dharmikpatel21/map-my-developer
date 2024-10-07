@@ -10,33 +10,22 @@ type Props = {
   setEmpDataWithCoordinates: React.Dispatch<
     React.SetStateAction<Record<string, any>[]>
   >;
+  parsedJobRequirement: Record<string, any>[];
+  parsedOnBenchEmployee: Record<string, any>[];
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-const SelectJob = ({ setEmpDataWithCoordinates, setLoading }: Props) => {
+const SelectJob = ({
+  setEmpDataWithCoordinates,
+  setLoading,
+  parsedJobRequirement,
+  parsedOnBenchEmployee,
+}: Props) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
-
-  const [parsedJobRequirement, setParsedJobRequirement] = useState<
-    Record<string, any>[] | null
-  >(null);
-  const [parsedOnBenchEmployee, setParsedOnBenchEmployee] = useState<
-    Record<string, any>[] | null
-  >(null);
-
-  useEffect(() => {
-    const storedJobRequirement = sessionStorage.getItem("jobRequirement");
-    if (storedJobRequirement) {
-      setParsedJobRequirement(JSON.parse(storedJobRequirement));
-    }
-    const storedOnBenchEmployee = sessionStorage.getItem("onBenchEmployee");
-    if (storedOnBenchEmployee) {
-      setParsedOnBenchEmployee(JSON.parse(storedOnBenchEmployee));
-    }
-  }, []);
 
   const onSubmit = async (data: FieldValues) => {
     try {

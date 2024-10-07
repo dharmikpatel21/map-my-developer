@@ -31,67 +31,73 @@ const MapWithEmployeeMarkers = ({ empDataWithCoordinates, loading }: Props) => {
       {loading ? (
         <Spinner />
       ) : (
-        <MapContainer
-          center={[20.5937, 78.9629]}
-          zoom={2}
-          style={{ height: 500, width: 500 }}
-        >
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          />
-          {empDataWithCoordinates.map((employee, index) => {
-            const lat = parseFloat(employee.coordinates.lat);
-            const lng = parseFloat(employee.coordinates.lon);
-            const position = `${lat},${lng}`;
+        empDataWithCoordinates.length > 0 && (
+          <MapContainer
+            center={[20.5937, 78.9629]}
+            zoom={2}
+            style={{ height: 500, width: 500 }}
+          >
+            <TileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            />
+            {empDataWithCoordinates.map((employee, index) => {
+              const lat = parseFloat(employee.coordinates.lat);
+              const lng = parseFloat(employee.coordinates.lon);
+              const position = `${lat},${lng}`;
 
-            if (uniqueCoordinates.has(position)) {
-              return null;
-            }
-            uniqueCoordinates.add(position);
+              if (uniqueCoordinates.has(position)) {
+                return null;
+              }
+              uniqueCoordinates.add(position);
 
-            const employeeCount = empDataWithCoordinates.filter(
-              (emp) =>
-                parseFloat(emp.coordinates.lat) === lat &&
-                parseFloat(emp.coordinates.lon) === lng
-            ).length;
+              const employeeCount = empDataWithCoordinates.filter(
+                (emp) =>
+                  parseFloat(emp.coordinates.lat) === lat &&
+                  parseFloat(emp.coordinates.lon) === lng
+              ).length;
 
-            return (
-              <Marker key={position} position={{ lat, lng }} icon={DefaultIcon}>
-                <Popup className="overflow-scroll">
-                  <div className="flex flex-col">
-                    <p>Number of Employees: {employeeCount}</p>{" "}
-                    {empDataWithCoordinates
-                      .filter(
-                        (emp) =>
-                          parseFloat(emp.coordinates.lat) === lat &&
-                          parseFloat(emp.coordinates.lon) === lng
-                      )
-                      .map((emp) => (
-                        <div key={emp.EmpID}>
-                          {/* <p>AccountSPOC: {emp.AccountSPOC}</p> */}
-                          <p>Designation: {emp.Designation}</p>
-                          <p>EmpID: {emp.EmpID}</p>
-                          <p>EmpName: {emp.EmpName}</p>
-                          {/* <p>Experience: {emp.Experience}</p> */}
-                          {/* <p>PhoneNo: {emp.PhoneNo}</p> */}
-                          <p>Skills: {emp.Skills}</p>
-                          <p>Primary Skills: {emp["Primary Skills "]}</p>
-                          {/* <p>Resource Status: {emp["Resource Status"]}</p> */}
-                          {/* <p>Location: {emp.Location}</p> */}
-                          <p>
-                            Latitude and Longitude: {emp.coordinates.lat},{" "}
-                            {emp.coordinates.lon}
-                          </p>
-                          <hr />{" "}
-                        </div>
-                      ))}
-                  </div>
-                </Popup>
-              </Marker>
-            );
-          })}
-        </MapContainer>
+              return (
+                <Marker
+                  key={position}
+                  position={{ lat, lng }}
+                  icon={DefaultIcon}
+                >
+                  <Popup className="overflow-scroll">
+                    <div className="flex flex-col">
+                      <p>Number of Employees: {employeeCount}</p>{" "}
+                      {empDataWithCoordinates
+                        .filter(
+                          (emp) =>
+                            parseFloat(emp.coordinates.lat) === lat &&
+                            parseFloat(emp.coordinates.lon) === lng
+                        )
+                        .map((emp) => (
+                          <div key={emp.EmpID}>
+                            {/* <p>AccountSPOC: {emp.AccountSPOC}</p> */}
+                            <p>Designation: {emp.Designation}</p>
+                            <p>EmpID: {emp.EmpID}</p>
+                            <p>EmpName: {emp.EmpName}</p>
+                            {/* <p>Experience: {emp.Experience}</p> */}
+                            {/* <p>PhoneNo: {emp.PhoneNo}</p> */}
+                            <p>Skills: {emp.Skills}</p>
+                            <p>Primary Skills: {emp["Primary Skills "]}</p>
+                            {/* <p>Resource Status: {emp["Resource Status"]}</p> */}
+                            {/* <p>Location: {emp.Location}</p> */}
+                            <p>
+                              Latitude and Longitude: {emp.coordinates.lat},{" "}
+                              {emp.coordinates.lon}
+                            </p>
+                            <hr />{" "}
+                          </div>
+                        ))}
+                    </div>
+                  </Popup>
+                </Marker>
+              );
+            })}
+          </MapContainer>
+        )
       )}
     </div>
   );
