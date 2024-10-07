@@ -10,7 +10,7 @@ const MapWithEmployeeMarkers = dynamic(
 type Props = {};
 
 const MainContainer = (props: Props) => {
-  const [locationCoordinates, setLocationCoordinates] = useState<
+  const [empDataWithCoordinates, setEmpDataWithCoordinates] = useState<
     Record<string, any>[]
   >([]);
   const [loading, setLoading] = useState(false);
@@ -19,11 +19,11 @@ const MainContainer = (props: Props) => {
     <div>
       <ExcelUpload />
       <SelectJob
-        setLocationCoordinates={setLocationCoordinates}
+        setEmpDataWithCoordinates={setEmpDataWithCoordinates}
         setLoading={setLoading}
       />
       <MapWithEmployeeMarkers
-        locationCoordinates={locationCoordinates}
+        empDataWithCoordinates={empDataWithCoordinates}
         loading={loading}
       />
     </div>

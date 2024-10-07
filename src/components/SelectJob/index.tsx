@@ -6,13 +6,13 @@ import React, { useEffect, useState } from "react";
 import { FieldValues, useForm } from "react-hook-form";
 
 type Props = {
-  setLocationCoordinates: React.Dispatch<
+  setEmpDataWithCoordinates: React.Dispatch<
     React.SetStateAction<Record<string, any>[]>
   >;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-const SelectJob = ({ setLocationCoordinates, setLoading }: Props) => {
+const SelectJob = ({ setEmpDataWithCoordinates, setLoading }: Props) => {
   const {
     register,
     handleSubmit,
@@ -59,17 +59,21 @@ const SelectJob = ({ setLocationCoordinates, setLoading }: Props) => {
         return;
       }
 
-      const empLocation = await Promise.all(
+      // let coordinatesCache: Record<string, any> = {};
+
+      const empLocationWithCoordinates = await Promise.all(
         matchingEmployees.map(async (employee: Record<string, any>) => {
-          const location = employee.Location?.toLowerCase();
+          const location = employee.Location?.toLowerCase().trim();
           if (!location) {
             console.warn(`Employee ${employee.name} has no location.`);
             return null;
           }
+          // if (!coordinatesCache[location]) {
           try {
             const coordinates = await getCoordinates(location);
             console.log(`Coordinates for ${location}:`, coordinates);
-            return coordinates;
+            return { ...employee, coordinates };
+            // coordinatesCache[location] = coordinates;
           } catch (error: any) {
             console.error(
               `Error fetching coordinates for ${employee.Location}:`,
@@ -77,12 +81,18 @@ const SelectJob = ({ setLocationCoordinates, setLoading }: Props) => {
             );
             return null;
           }
+          // }
+
+          // const coordinates = coordinatesCache[location];
+          // return { ...employee, coordinates };
         })
       );
 
-      const validLocations = empLocation.filter((loc) => loc !== null);
-      setLocationCoordinates(validLocations);
-      console.log("All valid employee coordinates:", validLocations);
+      const empDataWithvalidLocations = empLocationWithCoordinates.filter(
+        (loc) => loc !== null
+      );
+      setEmpDataWithCoordinates(empDataWithvalidLocations);
+      console.log("All valid employee coordinates:", empDataWithvalidLocations);
     } catch (error: any) {
       console.error("Error during form submission:", error.message);
     } finally {
