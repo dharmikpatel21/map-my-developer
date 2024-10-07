@@ -1,9 +1,10 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import Spinner from "../Spinner";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 
 type Props = {
   empDataWithCoordinates: Record<string, any>[];
@@ -19,87 +20,161 @@ const DefaultIcon = L.icon({
 L.Marker.prototype.options.icon = DefaultIcon;
 
 const MapWithEmployeeMarkers = ({ empDataWithCoordinates, loading }: Props) => {
+  const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
+
   console.log("====================================");
   console.log("locationCoordinates", empDataWithCoordinates);
   console.log("====================================");
 
-  // Create a Set to track unique coordinates
   const uniqueCoordinates = new Set<string>();
 
   return (
-    <div>
-      {loading ? (
-        <Spinner />
-      ) : (
-        empDataWithCoordinates.length > 0 && (
-          <MapContainer
-            center={[20.5937, 78.9629]}
-            zoom={2}
-            style={{ height: 500, width: 500 }}
-          >
-            <TileLayer
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            />
-            {empDataWithCoordinates.map((employee, index) => {
-              const lat = parseFloat(employee.coordinates.lat);
-              const lng = parseFloat(employee.coordinates.lon);
-              const position = `${lat},${lng}`;
+    <>
+      <Sheet
+        open={!!selectedEmployee}
+        onOpenChange={() => setSelectedEmployee(null)}
+      >
+        <div>
+          {loading ? (
+            <Spinner />
+          ) : (
+            empDataWithCoordinates.length > 0 && (
+              <MapContainer
+                center={[20.5937, 78.9629]}
+                zoom={2}
+                style={{ height: "100%", width: "100%" }}
+              >
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                />
+                {empDataWithCoordinates.map((employee, index) => {
+                  const lat = parseFloat(employee.coordinates.lat);
+                  const lng = parseFloat(employee.coordinates.lon);
+                  const position = `${lat},${lng}`;
 
-              if (uniqueCoordinates.has(position)) {
-                return null;
-              }
-              uniqueCoordinates.add(position);
+                  if (uniqueCoordinates.has(position)) {
+                    return null;
+                  }
+                  uniqueCoordinates.add(position);
 
-              const employeeCount = empDataWithCoordinates.filter(
-                (emp) =>
-                  parseFloat(emp.coordinates.lat) === lat &&
-                  parseFloat(emp.coordinates.lon) === lng
-              ).length;
+                  const employeeCount = empDataWithCoordinates.filter(
+                    (emp) =>
+                      parseFloat(emp.coordinates.lat) === lat &&
+                      parseFloat(emp.coordinates.lon) === lng
+                  ).length;
 
-              return (
-                <Marker
-                  key={position}
-                  position={{ lat, lng }}
-                  icon={DefaultIcon}
-                >
-                  <Popup className="overflow-scroll">
-                    <div className="flex flex-col">
-                      <p>Number of Employees: {employeeCount}</p>{" "}
-                      {empDataWithCoordinates
-                        .filter(
-                          (emp) =>
-                            parseFloat(emp.coordinates.lat) === lat &&
-                            parseFloat(emp.coordinates.lon) === lng
-                        )
-                        .map((emp) => (
-                          <div key={emp.EmpID}>
-                            {/* <p>AccountSPOC: {emp.AccountSPOC}</p> */}
-                            <p>Designation: {emp.Designation}</p>
-                            <p>EmpID: {emp.EmpID}</p>
-                            <p>EmpName: {emp.EmpName}</p>
-                            {/* <p>Experience: {emp.Experience}</p> */}
-                            {/* <p>PhoneNo: {emp.PhoneNo}</p> */}
-                            <p>Skills: {emp.Skills}</p>
-                            <p>Primary Skills: {emp["Primary Skills "]}</p>
-                            {/* <p>Resource Status: {emp["Resource Status"]}</p> */}
-                            {/* <p>Location: {emp.Location}</p> */}
-                            <p>
-                              Latitude and Longitude: {emp.coordinates.lat},{" "}
-                              {emp.coordinates.lon}
-                            </p>
-                            <hr />{" "}
-                          </div>
-                        ))}
-                    </div>
-                  </Popup>
-                </Marker>
-              );
-            })}
-          </MapContainer>
-        )
-      )}
-    </div>
+                  return (
+                    <Marker
+                      key={position}
+                      position={{ lat, lng }}
+                      icon={DefaultIcon}
+                      eventHandlers={{
+                        click: () => {
+                          setSelectedEmployee(employee);
+                        },
+                      }}
+                    >
+                      {selectedEmployee &&
+                        selectedEmployee.EmpID === employee.EmpID && (
+                          <SheetContent className="overflow-y-scroll flex flex-col gap-4">
+                            <SheetHeader>
+                              <SheetTitle>
+                                total employees:{employeeCount}
+                              </SheetTitle>
+                            </SheetHeader>
+                            <div className="flex flex-col divide-y-2 gap-4">
+                              {empDataWithCoordinates
+                                .filter(
+                                  (emp) =>
+                                    parseFloat(emp.coordinates.lat) === lat &&
+                                    parseFloat(emp.coordinates.lon) === lng
+                                )
+                                .map((emp) => (
+                                  <div
+                                    key={emp.EmpID}
+                                    className="rounded-lg p-2 border border-black"
+                                  >
+                                    <div className="flex gap-2">
+                                      <span className="font-semibold">
+                                        AccountSPOC:
+                                      </span>
+                                      <span>{emp.AccountSPOC}</span>
+                                    </div>
+                                    <div className="flex gap-2">
+                                      <span className="font-semibold">
+                                        Designation:
+                                      </span>
+                                      <span>{emp.Designation}</span>
+                                    </div>
+                                    <div className="flex gap-2">
+                                      <span className="font-semibold">
+                                        EmpID:
+                                      </span>
+                                      <span>{emp.EmpID}</span>
+                                    </div>
+                                    <div className="flex gap-2">
+                                      <span className="font-semibold">
+                                        EmpName:
+                                      </span>
+                                      <span>{emp.EmpName}</span>
+                                    </div>
+                                    <div className="flex gap-2">
+                                      <span className="font-semibold">
+                                        Experience:
+                                      </span>
+                                      <span>{emp.Experience}</span>
+                                    </div>
+                                    <div className="flex gap-2">
+                                      <span className="font-semibold">
+                                        PhoneNo:
+                                      </span>
+                                      <span>{emp.PhoneNo}</span>
+                                    </div>
+                                    <div className="flex gap-2">
+                                      <span className="font-semibold">
+                                        Skills:
+                                      </span>
+                                      <span>{emp.Skills}</span>
+                                    </div>
+                                    <div className="flex gap-2">
+                                      <span className="font-semibold">
+                                        Primary Skills:
+                                      </span>
+                                      <span>{emp["Primary Skills "]}</span>
+                                    </div>
+                                    <div className="flex gap-2">
+                                      <span className="font-semibold">
+                                        Resource Status:
+                                      </span>
+                                      <span>{emp["Resource Status"]}</span>
+                                    </div>
+                                    <div className="flex gap-2">
+                                      <span className="font-semibold">
+                                        Location:
+                                      </span>
+                                      <span>{emp.Location}</span>
+                                    </div>
+
+                                    {/* <p>
+                                      Latitude and Longitude:{" "}
+                                      {emp.coordinates.lat},{" "}
+                                      {emp.coordinates.lon}
+                                    </p> */}
+                                  </div>
+                                ))}
+                            </div>
+                          </SheetContent>
+                        )}
+                    </Marker>
+                  );
+                })}
+              </MapContainer>
+            )
+          )}
+        </div>
+      </Sheet>
+    </>
   );
 };
 

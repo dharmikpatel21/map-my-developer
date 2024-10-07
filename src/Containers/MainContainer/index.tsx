@@ -31,9 +31,7 @@ const MainContainer = (props: Props) => {
       setParsedOnBenchEmployee(JSON.parse(storedOnBenchEmployee));
     }
   }, []);
-  console.log("====================================");
-  console.log("empDataWithCoordinates", empDataWithCoordinates);
-  console.log("====================================");
+
   return (
     <div
       className="flex flex-col items-center"
