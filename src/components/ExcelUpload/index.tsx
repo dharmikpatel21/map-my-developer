@@ -39,7 +39,7 @@ const ExcelUpload = ({
         {
           method: "POST",
           body: formData,
-          redirect: "follow",
+          mode: "no-cors",
         }
       );
 
