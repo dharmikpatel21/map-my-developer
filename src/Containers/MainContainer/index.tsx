@@ -33,10 +33,7 @@ const MainContainer = (props: Props) => {
   }, []);
 
   return (
-    <div
-      className="flex flex-col items-center"
-      style={{ gap: 20, padding: 20 }}
-    >
+    <div className="flex flex-col items-center gap-6 p-10">
       <ExcelUpload
         setParsedJobRequirement={setParsedJobRequirement}
         setParsedOnBenchEmployee={setParsedOnBenchEmployee}

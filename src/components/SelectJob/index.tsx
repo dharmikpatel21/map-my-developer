@@ -2,7 +2,7 @@
 import { getEmployeesFromSkills } from "@/lib/functions";
 import { getCoordinates } from "@/lib/getCordinates";
 import { getSkillsfromJobTitle } from "@/lib/getSkillsfromJobTitle";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { FieldValues, useForm } from "react-hook-form";
 import { Button } from "../ui/button";
 
@@ -91,32 +91,33 @@ const SelectJob = ({
   };
 
   return (
-    <div>
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        <div className="flex gap-4 items-center">
-          <label htmlFor="selectJob" className="font-bold text-lg">
-            Job Posting Title
-          </label>
-          <select
-            id="selectJob"
-            {...register("selectJob", { required: true })}
-            className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">Select your Job Posting Title</option>
-            {parsedJobRequirement?.map((item: Record<string, any>) => (
-              <option key={item["JR"]} value={item["Job Posting Title"]}>
-                {item["Job Posting Title"]}
-              </option>
-            ))}
-          </select>
-          {errors.selectJob && (
-            <p className="text-red-500 mt-1">This field is required</p>
-          )}
-        </div>
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex flex-col gap-4 flex-wrap"
+    >
+      <div className="flex gap-4 items-center flex-wrap justify-center">
+        <label htmlFor="selectJob" className="font-bold text-lg">
+          Job Posting Title
+        </label>
+        <select
+          id="selectJob"
+          {...register("selectJob", { required: true })}
+          className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-black w-full max-w-64"
+        >
+          <option value="">Select your Job Posting Title</option>
+          {parsedJobRequirement?.map((item: Record<string, any>) => (
+            <option key={item["JR"]} value={item["Job Posting Title"]}>
+              {item["Job Posting Title"]}
+            </option>
+          ))}
+        </select>
+        {errors.selectJob && (
+          <p className="text-red-500 mt-1">This field is required</p>
+        )}
+      </div>
 
-        <Button type="submit">Submit</Button>
-      </form>
-    </div>
+      <Button type="submit">Submit</Button>
+    </form>
   );
 };
 

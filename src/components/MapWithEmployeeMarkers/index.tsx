@@ -22,10 +22,6 @@ L.Marker.prototype.options.icon = DefaultIcon;
 const MapWithEmployeeMarkers = ({ empDataWithCoordinates, loading }: Props) => {
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
 
-  console.log("====================================");
-  console.log("locationCoordinates", empDataWithCoordinates);
-  console.log("====================================");
-
   const uniqueCoordinates = new Set<string>();
 
   return (
@@ -42,7 +38,8 @@ const MapWithEmployeeMarkers = ({ empDataWithCoordinates, loading }: Props) => {
               <MapContainer
                 center={[20.5937, 78.9629]}
                 zoom={2}
-                style={{ height: "100%", width: "100%" }}
+                style={{ isolation: "isolate" }}
+                className="w-[600px] aspect-square"
               >
                 <TileLayer
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -83,7 +80,7 @@ const MapWithEmployeeMarkers = ({ empDataWithCoordinates, loading }: Props) => {
                                 total employees:{employeeCount}
                               </SheetTitle>
                             </SheetHeader>
-                            <div className="flex flex-col divide-y-2 gap-4">
+                            <div className="flex flex-col  gap-4">
                               {empDataWithCoordinates
                                 .filter(
                                   (emp) =>
