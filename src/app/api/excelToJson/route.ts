@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as XLSX from "xlsx";
+import { cors } from "../cors";
 
 export const runtime = "nodejs"; // Or 'experimental-edge' if using edge runtime
 
 export async function POST(req: NextRequest) {
+  const res = cors(req);
+  if (res) return res;
+
   try {
     // Extract the file from the request body
     const formData = await req.formData();
