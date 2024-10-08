@@ -6,7 +6,6 @@ export const formatPrimarySkills = (result: any) => {
   result[key].forEach((item: Record<string, any>) => {
     if (item.EmpID) {
       if (!empMap.has(item.EmpID)) {
-        // Initialize 'Primary Skills ' as an array if it's not already
         empMap.set(item.EmpID, {
           ...item,
           "Primary Skills ": item["Primary Skills "]
@@ -15,7 +14,6 @@ export const formatPrimarySkills = (result: any) => {
         });
       }
     } else if (item["Primary Skills "]) {
-      // Add to the Primary Skills array of the last employee
       const lastEmp = Array.from(empMap.values()).pop();
       if (lastEmp) {
         lastEmp["Primary Skills "].push(item["Primary Skills "]);

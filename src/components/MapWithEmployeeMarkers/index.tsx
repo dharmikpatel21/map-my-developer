@@ -74,7 +74,7 @@ const MapWithEmployeeMarkers = ({ empDataWithCoordinates, loading }: Props) => {
                     >
                       {selectedEmployee &&
                         selectedEmployee.EmpID === employee.EmpID && (
-                          <SheetContent className="overflow-y-scroll flex flex-col gap-4">
+                          <SheetContent className="overflow-y-scroll flex flex-col gap-4 max-w-[500px] w-full">
                             <SheetHeader>
                               <SheetTitle>
                                 total employees:{employeeCount}
@@ -138,7 +138,9 @@ const MapWithEmployeeMarkers = ({ empDataWithCoordinates, loading }: Props) => {
                                       <span className="font-semibold">
                                         Primary Skills:
                                       </span>
-                                      <span>{emp["Primary Skills "]}</span>
+                                      <span className="break-all">
+                                        {emp["Primary Skills "]}
+                                      </span>
                                     </div>
                                     <div className="flex gap-2">
                                       <span className="font-semibold">

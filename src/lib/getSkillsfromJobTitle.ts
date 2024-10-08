@@ -1,13 +1,12 @@
+import jsonData from "../../db.json";
 export const getSkillsfromJobTitle = async (jobTitle: string) => {
   try {
-    // Fetch skills for the specific job title
-    const response = await fetch(
-      `http://localhost:3001/skills?title=${encodeURIComponent(jobTitle)}`
+    const skillsDataFiltered = jsonData.skills.filter(
+      (skill) => skill.title === jobTitle
     );
-    const skillsData = await response.json();
 
-    if (skillsData.length > 0) {
-      const skills = skillsData[0].skills;
+    if (skillsDataFiltered.length > 0) {
+      const skills = skillsDataFiltered[0].skills;
       console.log("Skills for the job title:", jobTitle, skills);
       return skills;
     } else {
@@ -15,6 +14,6 @@ export const getSkillsfromJobTitle = async (jobTitle: string) => {
       return [];
     }
   } catch (error: any) {
-    console.error("Error fetching skills", error.message);
+    console.error("Error processing skills data", error.message);
   }
 };
