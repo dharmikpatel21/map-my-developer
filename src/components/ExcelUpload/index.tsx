@@ -32,13 +32,21 @@ const ExcelUpload = ({
   } = useForm();
   const onSubmit = async (data: FieldValues) => {
     const formData = new FormData();
-    formData.append("file", data.excelFile[0]); // Extract the file
-
+    formData.append("file", data.excelFile[0]);
     try {
-      const response = await fetch("http://localhost:3000/api/excelToJson", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/excelToJson`,
+        {
+          method: "POST",
+          body: formData,
+          redirect: "follow",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const result = await response.json();
       if (uploadType === "onBenchEmployee") {
         const formatOnBenchEmployee = formatPrimarySkills(result);
