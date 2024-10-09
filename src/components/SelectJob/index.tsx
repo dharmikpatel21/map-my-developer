@@ -5,6 +5,7 @@ import { getSkillsfromJobTitle } from "@/lib/getSkillsfromJobTitle";
 import React from "react";
 import { FieldValues, useForm } from "react-hook-form";
 import { Button } from "../ui/button";
+import { toast } from "../ui/use-toast";
 
 type Props = {
   setEmpDataWithCoordinates: React.Dispatch<
@@ -35,6 +36,10 @@ const SelectJob = ({
       const skills = await getSkillsfromJobTitle(selectedJob);
 
       if (!skills || !parsedOnBenchEmployee) {
+        toast({
+          variant: "destructive",
+          description: "No skills or employee data available.",
+        });
         console.warn("No skills or employee data available.");
         return;
       }
@@ -45,6 +50,10 @@ const SelectJob = ({
       });
 
       if (!matchingEmployees.length) {
+        toast({
+          variant: "destructive",
+          description: "No matching employees found.",
+        });
         console.warn("No matching employees found.");
         return;
       }
@@ -55,6 +64,10 @@ const SelectJob = ({
         matchingEmployees.map(async (employee: Record<string, any>) => {
           const location = employee.Location?.toLowerCase().trim();
           if (!location) {
+            toast({
+              variant: "destructive",
+              description: "Employee ${employee.name} has no location.",
+            });
             console.warn(`Employee ${employee.name} has no location.`);
             return null;
           }
@@ -65,6 +78,10 @@ const SelectJob = ({
             return { ...employee, coordinates };
             // coordinatesCache[location] = coordinates;
           } catch (error: any) {
+            toast({
+              variant: "destructive",
+              description: `Error fetching coordinates for ${employee.Location}: ${error.message}`,
+            });
             console.error(
               `Error fetching coordinates for ${employee.Location}:`,
               error.message
@@ -84,6 +101,10 @@ const SelectJob = ({
       setEmpDataWithCoordinates(empDataWithvalidLocations);
       console.log("All valid employee coordinates:", empDataWithvalidLocations);
     } catch (error: any) {
+      toast({
+        variant: "destructive",
+        description: `Error during form submission: ${error.message}`,
+      });
       console.error("Error during form submission:", error.message);
     } finally {
       setLoading(false);
