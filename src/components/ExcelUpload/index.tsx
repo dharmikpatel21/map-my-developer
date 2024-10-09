@@ -5,6 +5,7 @@ import { FieldValues, useForm } from "react-hook-form";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { toast } from "../ui/use-toast";
+import { UploadIcon } from "@radix-ui/react-icons";
 
 type Props = {
   setParsedJobRequirement: React.Dispatch<
@@ -27,7 +28,11 @@ const ExcelUpload = ({
     register,
     handleSubmit,
     formState: { errors },
+    watch,
+    reset,
   } = useForm();
+
+  const fileName = watch("excelFile")?.[0]?.name;
 
   const handleExcelSubmit = async (data: FieldValues) => {
     const formData = new FormData();
@@ -41,6 +46,7 @@ const ExcelUpload = ({
           mode: "no-cors",
         }
       );
+
       if (response.ok) {
         toast({
           variant: "success",
@@ -53,9 +59,29 @@ const ExcelUpload = ({
       }
 
       const result = await response.json();
+      const firstExcelFileKey = Object.keys(result)[0];
+      const firstObectInData = result[firstExcelFileKey][0];
+
+      if (result.length > 0) {
+        toast({
+          variant: "destructive",
+          title: "Excel Data Parsing",
+          description: "only one excel is allowed",
+        });
+      }
 
       if (uploadType === "onBenchEmployee") {
         const formatOnBenchEmployee = formatPrimarySkills(result);
+
+        const isOnBenchEmployeeExcel = "EmpID" in firstObectInData;
+
+        if (!isOnBenchEmployeeExcel) {
+          toast({
+            variant: "destructive",
+            description: "upload valid excel file",
+          });
+          return;
+        }
         sessionStorage.setItem(
           "onBenchEmployee",
           JSON.stringify(formatOnBenchEmployee)
@@ -64,19 +90,30 @@ const ExcelUpload = ({
         setUploadType("jobRequirement");
       }
       if (uploadType === "jobRequirement") {
+        const isJobRequirementExcel = "JR" in firstObectInData;
+
+        if (!isJobRequirementExcel) {
+          toast({
+            variant: "destructive",
+            description: "upload valid excel file",
+          });
+          return;
+        }
         sessionStorage.setItem(
           "jobRequirement",
-          JSON.stringify(result["Open JR"])
+          JSON.stringify(result[firstExcelFileKey])
         );
-        setParsedJobRequirement(result["Open JR"]);
+        setParsedJobRequirement(result[firstExcelFileKey]);
       }
     } catch (error: any) {
-      console.error("Error uploading the file:", error.message);
+      console.error("failed to upload the file:", error.message);
       toast({
         variant: "destructive",
         title: "Error",
-        description: `failed to upload the file : ${error.message}`,
+        description: `failed to upload the file: ${error.message}`,
       });
+    } finally {
+      reset();
     }
   };
 
@@ -87,18 +124,23 @@ const ExcelUpload = ({
           onSubmit={handleSubmit(handleExcelSubmit)}
           className="flex flex-col gap-4"
         >
-          <p>upload the excel file for onBenchEmployee </p>
-          <div>
-            <Input
+          <h3>Upload the excel file for onBenchEmployees</h3>
+          <label className="flex flex-col items-center justify-center border-2 py-5  border-dashed rounded-sm cursor-pointer bg-gray-50">
+            <div className="flex flex-col gap-6 items-center justify-center">
+              <UploadIcon className="w-6 aspect-square" />
+              <p className="font-semibold">Click to upload your excel</p>
+              {fileName && <p>{fileName}</p>}{" "}
+            </div>
+            <input
               type="file"
+              className="hidden"
               accept=".xlsx"
               {...register("excelFile", { required: true })}
-              className="cursor-pointer"
             />
-            {errors.excelFile && (
-              <p className="text-rose-400">Please upload an Excel file.</p>
-            )}
-          </div>
+          </label>
+          {errors.excelFile && (
+            <p className="text-rose-400">Please upload an Excel file.</p>
+          )}
           <Button type="submit">Upload</Button>
         </form>
       )}
@@ -108,18 +150,23 @@ const ExcelUpload = ({
           onSubmit={handleSubmit(handleExcelSubmit)}
           className="flex flex-col gap-4"
         >
-          <p>upload the excel file for jobRequirement </p>
-          <div>
-            <Input
+          <h3>Upload the excel file for jobRequirement </h3>
+          <label className="flex flex-col items-center justify-center border-2 py-5  border-dashed rounded-sm cursor-pointer bg-gray-50">
+            <div className="flex flex-col gap-6 items-center justify-center">
+              <UploadIcon className="w-6 aspect-square" />
+              <p className="font-semibold">Click to upload your excel</p>
+              {fileName && <p>{fileName}</p>}{" "}
+            </div>
+            <input
               type="file"
+              className="hidden"
               accept=".xlsx"
               {...register("excelFile", { required: true })}
-              className="cursor-pointer"
             />
-            {errors.excelFile && (
-              <p className="text-rose-400">Please upload an Excel file.</p>
-            )}
-          </div>
+          </label>
+          {errors.excelFile && (
+            <p className="text-rose-400">Please upload an Excel file.</p>
+          )}
           <Button type="submit">Submit Job Requirement Data</Button>
         </form>
       )}
